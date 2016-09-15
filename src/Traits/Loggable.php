@@ -3,6 +3,8 @@
 namespace Hesto\LaravelLogs\Traits;
 
 use Hesto\LaravelLogs\Models\Log;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 trait Loggable
 {
@@ -19,11 +21,13 @@ trait Loggable
             try {
                 foreach ($model->getDirty() as $key => $value) {
                     $model->logs()->create([
-                        'has_logs_id' => \Auth::user()->id,
-                        'has_logs_type' => get_class(\Auth::user()),
+                        'has_logs_id' => 1,
+                        'has_logs_type' => get_class(Auth::user()),
+                        'type' => 1,
+                        'action' => 'action',
                         'attribute' => $key,
                         'old_value' => $model->getOriginal($key),
-                        'new_value' => $value
+                        'new_value' => $value,
                     ]);
                 }
 
@@ -32,20 +36,5 @@ trait Loggable
                 return true;
             }
         });
-    }
-
-
-
-    protected static function getRecordActivityEvents()
-    {
-        if (isset(static::$recordEvents)) {
-            return static::$recordEvents;
-        }
-
-        return [
-            'created',
-            'updating',
-            'deleted',
-        ];
     }
 }
